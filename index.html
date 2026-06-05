@@ -692,6 +692,9 @@
             border: 1px solid rgba(167, 139, 250, 0.3);
             margin-bottom: 20px;
         }
+        .typing-area.typing-disabled {
+            user-select: none;
+        }
         .typing-display { display: inline; }
         .cursor-blink {
             display: inline-block;
@@ -834,7 +837,7 @@
 
     <div class="fb-browser-alert">
         ⚠️ You're in Facebook's browser. Open in Chrome for better experience.
-        <a onclick="openInBrowser()">Open in Chrome</a>
+        <a onclick="openInBrowser()">ih Open sa Chrome ba.</a>
     </div>
 
     <div class="bg-grid"></div>
@@ -927,7 +930,6 @@
         <div class="gotya-extras">
             <button class="glass-btn" id="aboutMeBtn">💜 About Me</button>
             <button class="glass-btn" id="myStandartBtn">✨ My Standart</button>
-            <button class="glass-btn" id="messengerBtn">📩 Send Message</button>
         </div>
 
         <button class="reveal-reset" id="revealReset">🔄 EXIT na Boi</button>
@@ -951,7 +953,7 @@
         (function() {
             // ========== ORIGINAL SUPABASE & GAME LOGIC (UNCHANGED) ==========
             const SUPABASE_URL = 'https://mvmfindypvuafhwvzhvg.supabase.co';
-            const SUPABASE_ANON_KEY = 'sb_publishable_FySYAhViwcn4_8DULvDaCg_2hqbq-l';
+            const SUPABASE_ANON_KEY = 'sb_publishable_FySYAhViwcn4_8DULvDaCg_2hqbqQ-l';
 
             let supabase;
             try {
@@ -1243,19 +1245,19 @@
             const modalTextSpan = document.getElementById('modalTypingText');
             const cursorSpan = document.getElementById('cursorBlink');
             const modalBackBtn = document.getElementById('modalBackBtn');
+            const typingArea = document.querySelector('.typing-area');
             const aboutBtn = document.getElementById('aboutMeBtn');
             const standartBtn = document.getElementById('myStandartBtn');
-            const messengerBtn = document.getElementById('messengerBtn');
-            const MESSENGER_URL = 'https://m.me/yourpage?ref=send-message';
 
             let typingInterval = null;
             let isModalOpen = false;
             let isTyping = false;
             let fullText = '';
             let charIndex = 0;
+            let stopTyping = false;
 
-            const ABOUT_TEXT = "I don’t enjoy food when it’s not spicy. I enjoy being alone; I don’t find it depressing, but peaceful. The younger me used to think about dating someone and eventually getting married, but the present me? It still crosses my mind more often now. Pero honestly, life is unpredictable....people come and go, timing never asks permission, so bahala na kung asa padung.";
-            const STANDART_TEXT = "Just be yourself, then we'll figure it out. One thing's for sure: I like buotan na lalaki~~it melts me instantly. But what is 'buotan' if it's just pakitang-tao, right? So I'll stick to my words: we'll figure it out.";
+            const ABOUT_TEXT = "I don’t enjoy food when it’s not spicy 🌶️. I enjoy being alone; I don’t find it depressing, but peaceful,,like this ✌️~~. The younger me used to think about dating someone and eventually getting married💑, but the present me? It still crosses my mind more often now. Pero honestly, life is unpredictable....people come and go basin diay mamatay ka 😁ahw, bitaw timing never asks permission, so bahala na kung asa padung.";
+            const STANDART_TEXT = "Just be yourself🩷, then we'll figure it out. One thing's for sure: I like buotan na lalaki~~it melts me instantly. But what is 'buotan' if it's just pakitang-tao, right? So I'll stick to my words: we'll figure it out.🤗";
 
             function resetTypingUI() {
                 if (typingInterval) clearInterval(typingInterval);
@@ -1264,6 +1266,7 @@
                 isTyping = false;
                 modalBackBtn.style.display = 'none';
                 cursorSpan.style.display = 'inline-block';
+                typingArea?.classList.remove('typing-disabled');
             }
 
             function closeModal() {
@@ -1282,22 +1285,23 @@
                 isTyping = true;
                 modalBackBtn.style.display = 'none';
                 cursorSpan.style.display = 'inline-block';
+                typingArea?.classList.add('typing-disabled');
                 typingInterval = setInterval(() => {
-                    if (!isModalOpen) {
+                    if (!isModalOpen || stopTyping) {
                         if (typingInterval) clearInterval(typingInterval);
                         return;
                     }
                     if (charIndex < fullText.length) {
                         modalTextSpan.innerHTML += fullText.charAt(charIndex);
                         charIndex++;
-                        const area = document.querySelector('.typing-area');
-                        if (area) area.scrollTop = area.scrollHeight;
+                        if (typingArea) typingArea.scrollTop = typingArea.scrollHeight;
                     } else {
                         clearInterval(typingInterval);
                         typingInterval = null;
                         isTyping = false;
                         cursorSpan.style.display = 'none';
                         modalBackBtn.style.display = 'inline-flex';
+                        typingArea?.classList.remove('typing-disabled');
                     }
                 }, 60);
             }
@@ -1305,6 +1309,7 @@
             function openModalWithText(text) {
                 if (isModalOpen) return; // prevent spam
                 isModalOpen = true;
+                stopTyping = false;
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
                 startTyping(text);
@@ -1321,13 +1326,22 @@
                 }
             });
 
+            typingArea?.addEventListener('click', (e) => {
+                if (isTyping && isModalOpen) {
+                    e.stopPropagation();
+                    stopTyping = true;
+                    if (typingInterval) clearInterval(typingInterval);
+                    typingInterval = null;
+                    isTyping = false;
+                    charIndex = fullText.length; // Lock index so no more text can be added
+                    cursorSpan.style.display = 'none';
+                    modalBackBtn.style.display = 'inline-flex';
+                    typingArea?.classList.remove('typing-disabled');
+                }
+            });
+
             aboutBtn.addEventListener('click', () => openModalWithText(ABOUT_TEXT));
             standartBtn.addEventListener('click', () => openModalWithText(STANDART_TEXT));
-            if (messengerBtn) {
-                messengerBtn.addEventListener('click', () => {
-                    window.open('https://m.me/dimple.madelo.9', '_blank');
-                });
-            }
         })();
     </script>
 </body>
