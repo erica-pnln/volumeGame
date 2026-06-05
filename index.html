@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>=The Volume Game</title>
+    <title>The Volume Game</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -728,8 +728,8 @@
                 </div>
                 <h1 class="card-title">V O L U M E</h1>
                 <p class="card-subtitle">
-                    Improve your logical thinking through this g a m e  🤔
-                    <hr>Ano G!?
+                    <br>
+                    Improve your logical thinking through this<br>game😉
                 </p>
             </div>
 
@@ -772,6 +772,10 @@
         </div>
     </div>
 
+    <audio id="bgMusic" src="xtremefreddy-game-music-loop-1-143979.mp3" loop preload="auto"></audio>
+    <audio id="peekAudio" src="yarith7x-peek-a-boo-169410.mp3" preload="auto"></audio>
+    <audio id="laughAudio" src="mangaletp-funny-laughing-406018%20(1).mp3" preload="auto"></audio>
+
     <!-- Loading overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loader-spinner"></div>
@@ -789,11 +793,9 @@
         <div class="reveal-message" id="revealMessage">
             Ikaw ha <span class="highlight">stalk²</span> Nyag gi chat na nimo, naa na unta tay <span class="highlight">love story</span> by <span class="highlight">VOLUME</span>💜
         </div>
-        <div class="reveal-message" id="revealMessage">
-            bitaw i Date to Marry if ur capable of it then Feel free to stay Connected, akoa ideal type is But-an
-        </div>
+       
 
-        <button class="reveal-reset" id="revealReset">🔄 Try Again</button>
+        <button class="reveal-reset" id="revealReset">🔄 EXIT na Boi</button>
     </div>
 
     <!-- Toast notification -->
@@ -814,7 +816,7 @@
 
     CREATE POLICY "Allow inserts for anonymous users" ON volume
       FOR INSERT
-      WITH CHECK (true);
+      WITH CHECK (true);c
 
     CREATE POLICY "Allow selects for anonymous users" ON volume
       FOR SELECT
@@ -830,7 +832,7 @@
             // ==================== SUPABASE CONFIGURATION ====================
             const SUPABASE_URL = 'https://mvmfindypvuafhwvzhvg.supabase.co';
             const SUPABASE_ANON_KEY =
-                'sb_publishable_FySYAhViwcn4_8DULvDaCg_2hqbqQ-l';
+                'sb_publishable_FySYAhViwcn4_8DULvDaCg_2hqbq-l';
 
             let supabase;
             try {
@@ -858,9 +860,13 @@
             const revealMessage = document.getElementById('revealMessage');
             const revealReset = document.getElementById('revealReset');
             const toast = document.getElementById('toast');
+            const bgMusic = document.getElementById('bgMusic');
+            const peekAudio = document.getElementById('peekAudio');
+            const laughAudio = document.getElementById('laughAudio');
 
             let isSubmitting = false;
             let revealActive = false;
+            let audioUnlocked = false;
 
             function validateName(value) {
                 const trimmed = value.trim();
@@ -941,6 +947,33 @@
                 }, 3500);
             }
 
+            function initAudioPlayback() {
+                if (audioUnlocked) return;
+                if (!bgMusic) return;
+
+                bgMusic.volume = 0.55;
+                bgMusic.loop = true;
+                bgMusic.muted = false;
+                bgMusic.currentTime = 0;
+
+                const playPromise = bgMusic.play();
+                if (playPromise && typeof playPromise.then === 'function') {
+                    playPromise.then(() => {
+                        audioUnlocked = true;
+                    }).catch((err) => {
+                        console.warn('Background music playback failed:', err);
+                    });
+                } else {
+                    audioUnlocked = true;
+                }
+            }
+
+            document.addEventListener('pointerdown', initAudioPlayback, { once: true, capture: true });
+            document.addEventListener('keydown', initAudioPlayback, { once: true, capture: true });
+            document.addEventListener('touchstart', initAudioPlayback, { once: true, capture: true });
+
+            btnLogin.addEventListener('click', initAudioPlayback);
+
             async function startRevealSequence(userName) {
                 loadingOverlay.classList.add('active');
                 // Updated loading texts
@@ -969,6 +1002,18 @@
                 revealScreen.classList.add('active');
                 revealGotcha.classList.add('glitch-active');
                 revealActive = true;
+                if (peekAudio) {
+                    peekAudio.currentTime = 0;
+                    peekAudio.volume = 0.85;
+                    peekAudio.play().catch(() => {});
+                }
+                if (laughAudio) {
+                    setTimeout(() => {
+                        laughAudio.currentTime = 0;
+                        laughAudio.volume = 0.95;
+                        laughAudio.play().catch(() => {});
+                    }, 1000);
+                }
 
                 await sleep(900);
                 revealGotcha.classList.remove('glitch-active');
@@ -1030,6 +1075,16 @@
                     return;
                 }
 
+                initAudioPlayback();
+                if (bgMusic) {
+                    const playPromise = bgMusic.play();
+                    if (playPromise && typeof playPromise.then === 'function') {
+                        playPromise.catch((err) => {
+                            console.warn('Background music playback failed on submit:', err);
+                        });
+                    }
+                }
+
                 isSubmitting = true;
                 btnLogin.disabled = true;
                 loginCard.style.opacity = '0.85';
@@ -1074,7 +1129,11 @@
 
             revealReset.addEventListener('click', function() {
                 resetApp();
-                showToast('👀 Going again? Alright...');
+                showToast('👀 Closing now...');
+                setTimeout(() => {
+                    window.close();
+                    window.open('', '_self')?.close();
+                }, 150);
             });
 
             btnLogin.disabled = true;
