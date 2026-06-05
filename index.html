@@ -296,27 +296,17 @@
             text-align: left;
         }
 
-        /* ============================================================
-           MOBILE INPUT FIX
-           - color + -webkit-text-fill-color: forces white text on iOS
-           - caret-color: visible cursor on all mobile browsers
-           - opacity/appearance: prevents iOS from overriding styles
-           ============================================================ */
         .form-input {
             width: 100%;
             padding: 13px 16px;
             background: var(--input-bg);
             border: 1px solid var(--input-border);
             border-radius: var(--radius-md);
-            /* Explicit color for all browsers */
             color: #ffffff;
-            /* iOS Safari reads this instead of color */
             -webkit-text-fill-color: #ffffff;
-            /* Visible cursor on mobile */
             caret-color: #6c8cff;
             opacity: 1;
             -webkit-opacity: 1;
-            /* Remove native mobile styling that can override text color */
             -webkit-appearance: none;
             appearance: none;
             font-family: 'Inter', sans-serif;
@@ -351,7 +341,6 @@
             border-color: rgba(92, 230, 176, 0.4);
         }
 
-        /* Autofill override — prevents iOS/Chrome blue/yellow bg */
         .form-input:-webkit-autofill,
         .form-input:-webkit-autofill:hover,
         .form-input:-webkit-autofill:focus,
@@ -360,7 +349,6 @@
             color: #ffffff !important;
             -webkit-box-shadow: 0 0 0 1000px rgba(15, 15, 25, 0.95) inset !important;
             box-shadow: 0 0 0 1000px rgba(15, 15, 25, 0.95) inset !important;
-            /* Delay transition so the override stays in effect */
             transition: background-color 5000s ease-in-out 0s,
                         color 5000s ease-in-out 0s;
             caret-color: #6c8cff !important;
@@ -597,11 +585,7 @@
             letter-spacing: 0.02em;
             opacity: 0;
             transform: translateY(15px);
-            transition: all 0.6s ease 0.8s;
-        }
-        .reveal-screen.active .reveal-reset {
-            opacity: 1;
-            transform: translateY(0);
+            transition: all 0.6s ease;
         }
         .reveal-reset:hover {
             background: rgba(255, 255, 255, 0.08);
@@ -609,7 +593,142 @@
             box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
         }
 
-        /* Toast */
+        /* NEW BUTTONS STYLES (glassmorphism, below EXIT) */
+        .gotya-extras {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal-screen.ready .reveal-reset,
+        .reveal-screen.ready .gotya-extras {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.45s;
+        }
+        .reveal-reset:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
+        }
+
+        /* NEW BUTTONS STYLES (glassmorphism, below EXIT) */
+        .glass-btn {
+            background: rgba(30, 30, 50, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(167, 139, 250, 0.5);
+            border-radius: 48px;
+            padding: 10px 24px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #f0eaff;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .glass-btn:hover {
+            background: rgba(108, 140, 255, 0.25);
+            border-color: rgba(167, 139, 250, 0.8);
+            transform: scale(1.02);
+        }
+        .glass-btn:active { transform: scale(0.98); }
+
+        /* FULLSCREEN TYPING MODAL */
+        .fullscreen-typer-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        .fullscreen-typer-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .typer-card {
+            max-width: 560px;
+            width: 88%;
+            background: rgba(18, 18, 32, 0.96);
+            backdrop-filter: blur(20px);
+            border-radius: 36px;
+            border: 1px solid rgba(167, 139, 250, 0.6);
+            padding: 34px 28px 38px;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.6);
+            text-align: center;
+            transform: scale(0.96);
+            transition: transform 0.3s ease;
+        }
+        .fullscreen-typer-modal.active .typer-card {
+            transform: scale(1);
+        }
+        .typing-area {
+            background: rgba(0,0,0,0.45);
+            border-radius: 28px;
+            padding: 24px 20px;
+            font-family: 'Inter', monospace;
+            font-size: 1.2rem;
+            line-height: 1.55;
+            color: #f0eefc;
+            text-align: left;
+            min-height: 180px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            margin-bottom: 20px;
+        }
+        .typing-display { display: inline; }
+        .cursor-blink {
+            display: inline-block;
+            width: 2px;
+            background-color: #a78bfa;
+            margin-left: 2px;
+            animation: blinkCursor 1s step-end infinite;
+            font-weight: 100;
+            font-size: 1.3rem;
+            vertical-align: baseline;
+            color: #a78bfa;
+        }
+        @keyframes blinkCursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .modal-back-btn {
+            background: linear-gradient(125deg, rgba(108, 140, 255, 0.2), rgba(167, 139, 250, 0.3));
+            border: 1px solid rgba(167, 139, 250, 0.8);
+            padding: 12px 32px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e2d9ff;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: fit-content;
+            margin: 12px auto 0;
+        }
+        .modal-back-btn:hover {
+            background: rgba(167, 139, 250, 0.5);
+            border-color: #c4b0ff;
+            transform: scale(0.98);
+            color: white;
+        }
+
+        /* Toast and other existing styles */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -637,7 +756,6 @@
             color: #ff6b7a;
         }
 
-        /* FB In-App Browser Helper */
         .fb-browser-alert {
             display: none;
             position: fixed;
@@ -682,7 +800,6 @@
             background: #f0f0f0;
         }
 
-        /* Responsive */
         @media (max-width: 480px) {
             .glass-card {
                 padding: 28px 20px;
@@ -693,7 +810,7 @@
             }
             .form-input {
                 padding: 12px 14px;
-                font-size: 16px; /* Prevents iOS zoom on focus */
+                font-size: 16px;
             }
             .btn-login {
                 padding: 13px;
@@ -705,6 +822,10 @@
             }
             .app-container {
                 padding: 16px;
+            }
+            .typing-area {
+                font-size: 1rem;
+                padding: 20px 16px;
             }
         }
     </style>
@@ -799,10 +920,27 @@
             Got ya! <span class="reveal-emoji">🫵😆</span>
         </div>
         <div class="reveal-message" id="revealMessage">
-            Ikaw ha <span class="highlight">stalk²</span> Nyag gi chat na nimo, naa na unta tay <span class="highlight">love story</span> by <span class="highlight">VOLUME</span>💜
+            Ikaw ha~ <span class="highlight">stalk² ka huh~~</span> Nyag gi chat na nimo, naa na unta tay <span class="highlight">love story</span> by <span class="highlight">VOLUME</span>💜
+        </div>
+
+        <!-- NEW BUTTONS: About Me & My Standart -->
+        <div class="gotya-extras">
+            <button class="glass-btn" id="aboutMeBtn">💜 About Me</button>
+            <button class="glass-btn" id="myStandartBtn">✨ My Standart</button>
+            <button class="glass-btn" id="messengerBtn">📩 Send Message</button>
         </div>
 
         <button class="reveal-reset" id="revealReset">🔄 EXIT na Boi</button>
+    </div>
+
+    <!-- FULLSCREEN TYPING MODAL -->
+    <div id="typingModal" class="fullscreen-typer-modal">
+        <div class="typer-card">
+            <div class="typing-area">
+                <span id="modalTypingText" class="typing-display"></span><span id="cursorBlink" class="cursor-blink">|</span>
+            </div>
+            <button id="modalBackBtn" class="modal-back-btn" style="display: none;">Back</button>
+        </div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -811,6 +949,7 @@
 
     <script>
         (function() {
+            // ========== ORIGINAL SUPABASE & GAME LOGIC (UNCHANGED) ==========
             const SUPABASE_URL = 'https://mvmfindypvuafhwvzhvg.supabase.co';
             const SUPABASE_ANON_KEY = 'sb_publishable_FySYAhViwcn4_8DULvDaCg_2hqbq-l';
 
@@ -975,11 +1114,13 @@
                 revealGotcha.classList.remove('glitch-active');
                 await sleep(400);
                 revealMessage.classList.add('visible');
+                await sleep(700);
+                revealScreen.classList.add('ready');
                 setTimeout(() => revealGotcha.classList.remove('glitch-active'), 1200);
             }
 
             function resetApp() {
-                revealScreen.classList.remove('active');
+                revealScreen.classList.remove('active', 'ready');
                 revealMessage.classList.remove('visible');
                 revealGotcha.classList.remove('glitch-active');
                 revealActive = false;
@@ -1096,6 +1237,97 @@
             });
 
             console.log('%c🎮 VOLUME game ready — improve your logic!', 'font-weight:bold;color:#a78bfa;');
+
+            // ========== NEW: TYPING MODAL LOGIC FOR ABOUT ME & MY STANDART ==========
+            const modal = document.getElementById('typingModal');
+            const modalTextSpan = document.getElementById('modalTypingText');
+            const cursorSpan = document.getElementById('cursorBlink');
+            const modalBackBtn = document.getElementById('modalBackBtn');
+            const aboutBtn = document.getElementById('aboutMeBtn');
+            const standartBtn = document.getElementById('myStandartBtn');
+            const messengerBtn = document.getElementById('messengerBtn');
+            const MESSENGER_URL = 'https://m.me/yourpage?ref=send-message';
+
+            let typingInterval = null;
+            let isModalOpen = false;
+            let isTyping = false;
+            let fullText = '';
+            let charIndex = 0;
+
+            const ABOUT_TEXT = "I don’t enjoy food when it’s not spicy. I enjoy being alone; I don’t find it depressing, but peaceful. The younger me used to think about dating someone and eventually getting married, but the present me? It still crosses my mind more often now. Pero honestly, life is unpredictable....people come and go, timing never asks permission, so bahala na kung asa padung.";
+            const STANDART_TEXT = "Just be yourself, then we'll figure it out. One thing's for sure: I like buotan na lalaki~~it melts me instantly. But what is 'buotan' if it's just pakitang-tao, right? So I'll stick to my words: we'll figure it out.";
+
+            function resetTypingUI() {
+                if (typingInterval) clearInterval(typingInterval);
+                modalTextSpan.innerHTML = '';
+                charIndex = 0;
+                isTyping = false;
+                modalBackBtn.style.display = 'none';
+                cursorSpan.style.display = 'inline-block';
+            }
+
+            function closeModal() {
+                if (!isModalOpen) return;
+                resetTypingUI();
+                modal.classList.remove('active');
+                isModalOpen = false;
+                document.body.style.overflow = '';
+            }
+
+            function startTyping(text) {
+                if (!isModalOpen) return;
+                resetTypingUI();
+                fullText = text;
+                charIndex = 0;
+                isTyping = true;
+                modalBackBtn.style.display = 'none';
+                cursorSpan.style.display = 'inline-block';
+                typingInterval = setInterval(() => {
+                    if (!isModalOpen) {
+                        if (typingInterval) clearInterval(typingInterval);
+                        return;
+                    }
+                    if (charIndex < fullText.length) {
+                        modalTextSpan.innerHTML += fullText.charAt(charIndex);
+                        charIndex++;
+                        const area = document.querySelector('.typing-area');
+                        if (area) area.scrollTop = area.scrollHeight;
+                    } else {
+                        clearInterval(typingInterval);
+                        typingInterval = null;
+                        isTyping = false;
+                        cursorSpan.style.display = 'none';
+                        modalBackBtn.style.display = 'inline-flex';
+                    }
+                }, 60);
+            }
+
+            function openModalWithText(text) {
+                if (isModalOpen) return; // prevent spam
+                isModalOpen = true;
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                startTyping(text);
+            }
+
+            modalBackBtn.addEventListener('click', () => {
+                if (isTyping) return;
+                closeModal();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && isModalOpen && !isTyping) {
+                    closeModal();
+                }
+            });
+
+            aboutBtn.addEventListener('click', () => openModalWithText(ABOUT_TEXT));
+            standartBtn.addEventListener('click', () => openModalWithText(STANDART_TEXT));
+            if (messengerBtn) {
+                messengerBtn.addEventListener('click', () => {
+                    window.open('https://m.me/dimple.madelo.9', '_blank');
+                });
+            }
         })();
     </script>
 </body>
