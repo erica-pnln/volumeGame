@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOLUME game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --glass-bg: rgba(20, 20, 35, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.04);
+            --neon-blue: #6c8cff;
+            --neon-purple: #a78bfa;
+            /* Removed --neon-glow and --shadow-glow */
+            --text-primary: #e8e8f0;
+            --text-secondary: #a0a0b8;
+            --text-muted: #6b6b80;
+            --input-bg: rgba(15, 15, 25, 0.7);
+            --input-border: rgba(255, 255, 255, 0.1);
+            --input-focus-border: rgba(108, 140, 255, 0.5);
+            --danger: #ff6b7a;
+            --success: #5ce6b0;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Animated background grid - slower drift */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(108, 140, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(108, 140, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridDrift 60s linear infinite;
+        }
+
+        @keyframes gridDrift {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        /* Floating orbs - lower opacity */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
+            animation: orbFloat 15s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 350px;
+            height: 350px;
+            background: rgba(108, 140, 255, 0.15);
+            top: -10%;
+            left: -8%;
+            animation-delay: 0s;
+        }
+        .orb-2 {
+            width: 280px;
+            height: 280px;
+            background: rgba(167, 139, 250, 0.12);
+            bottom: -12%;
+            right: -6%;
+            animation-delay: -7s;
+            animation-duration: 18s;
+        }
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: rgba(108, 140, 255, 0.1);
+            top: 50%;
+            left: 60%;
+            animation-delay: -4s;
+            animation-duration: 20s;
+        }
+
+        @keyframes orbFloat {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(30px, -40px) scale(1.1);
+            }
+            50% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+            75% {
+                transform: translate(-35px, -15px) scale(1.05);
+            }
+        }
+
+        /* Main container + entrance animation */
+        .app-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            transition: var(--transition-smooth);
+            animation: fadeUp 0.8s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Glassmorphism card */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 40px 32px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.15),
+                    rgba(255, 255, 255, 0.05),
+                    transparent);
+            border-radius: 1px;
+        }
+
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -60px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(108, 140, 255, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Logo Area - new style (no glow, hover effect) */
+        .logo-area {
+            text-align: center;
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-icon:hover {
+            transform: none;
+        }
+
+        .logo-icon svg {
+            width: 72px;
+            height: 72px;
+        }
+
+        .card-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 0 0 4px;
+            color: transparent;
+            background: linear-gradient(90deg, #e4e7ff, #d4c0ff, #8b7bff);
+            background-size: 240% 100%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            position: relative;
+            display: inline-flex;
+            animation: titleGlow 3.5s ease-in-out infinite, titleFloat 5s ease-in-out infinite;
+        }
+
+        .card-title::before,
+        .card-title::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 8px;
+            background: rgba(196, 179, 255, 0.8);
+            border-radius: 4px;
+            opacity: 0.9;
+        }
+
+        .card-title::before {
+            top: -10px;
+            left: -18px;
+            transform: rotate(-12deg);
+        }
+
+        .card-title::after {
+            bottom: -10px;
+            right: -18px;
+            transform: rotate(10deg);
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes titleFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+
+        /* Form */
+        .form-group {
+            margin: 0 auto 18px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.06em;
+            text-align: left;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 13px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: var(--transition-fast);
+            outline: none;
+            letter-spacing: 0.01em;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+        .form-input:focus {
+            border-color: #6c8cff;
+            box-shadow: 0 0 0 2px rgba(108, 140, 255, 0.15);
+            background: rgba(20, 20, 35, 0.85);
+        }
+        .form-input.error {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(255, 107, 122, 0.1);
+        }
+        .form-input.input-valid {
+            border-color: rgba(92, 230, 176, 0.4);
+        }
+
+        .input-error-msg {
+            font-size: 0.75rem;
+            color: var(--danger);
+            margin-top: 5px;
+            display: none;
+            font-weight: 400;
+        }
+        .input-error-msg.visible {
+            display: block;
+            animation: fadeInDown 0.25s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Button - cleaner shadow & hover */
+        .btn-login {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            padding: 14px;
+            background: linear-gradient(135deg, #5b7cfa, #7c5cf0);
+            border: none;
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            transition: var(--transition-smooth);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+            margin: 6px auto 0;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+            background: linear-gradient(135deg, #6c8cff, #8b6ef7);
+        }
+        .btn-login:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
+            transition: var(--transition-fast);
+        }
+        .btn-login:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(30%);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+        .btn-login .btn-shimmer {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.15),
+                    transparent);
+            transition: left 0.6s ease;
+        }
+        .btn-login:hover:not(:disabled) .btn-shimmer {
+            left: 100%;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(8, 8, 14, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .loader-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--neon-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #fff;
+            letter-spacing: 0.02em;
+            text-align: center;
+            transition: var(--transition-fast);
+        }
+        .loader-dots::after {
+            content: '';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+
+        @keyframes dots {
+            0% {
+                content: '';
+            }
+            33% {
+                content: '.';
+            }
+            66% {
+                content: '..';
+            }
+            100% {
+                content: '...';
+            }
+        }
+
+        .loader-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .loader-sub.visible {
+            opacity: 1;
+        }
+
+        /* Reveal screen */
+        .reveal-screen {
+            position: fixed;
+            inset: 0;
+            background: #06060d;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+            padding: 30px;
+        }
+        .reveal-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .reveal-gotcha {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(2.5rem, 7vw, 5rem);
+            font-weight: 900;
+            color: #fff;
+            text-align: center;
+            letter-spacing: -0.03em;
+            animation: glitchIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            position: relative;
+        }
+
+        .reveal-gotcha.glitch-active {
+            animation: glitchSkew 0.3s ease-in-out 3;
+        }
+
+        @keyframes glitchIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) rotate(-5deg);
+                filter: blur(20px);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.08) rotate(1deg);
+                filter: blur(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes glitchSkew {
+            0%,
+            100% {
+                transform: translate(0);
+                text-shadow: none;
+            }
+            20% {
+                transform: translate(-4px, 2px) skewX(-2deg);
+                text-shadow: 3px 0 #ff6b7a, -3px 0 #6c8cff;
+            }
+            40% {
+                transform: translate(4px, -1px) skewX(1deg);
+                text-shadow: -2px 0 #a78bfa, 2px 0 #5ce6b0;
+            }
+            60% {
+                transform: translate(-2px, -3px) skewX(-1deg);
+                text-shadow: 4px 0 #ff6b7a, -4px 0 #6c8cff;
+            }
+            80% {
+                transform: translate(3px, 1px) skewX(2deg);
+                text-shadow: -3px 0 #a78bfa, 3px 0 #5ce6b0;
+            }
+        }
+
+        .reveal-emoji {
+            display: inline-block;
+            animation: emojiBounce 0.7s ease-out 0.5s forwards;
+            opacity: 0;
+        }
+
+        @keyframes emojiBounce {
+            0% {
+                opacity: 0;
+                transform: scale(0) rotate(-30deg);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.4) rotate(10deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .reveal-message {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(1rem, 3vw, 1.35rem);
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.6;
+            margin-top: 24px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            letter-spacing: 0.01em;
+        }
+        .reveal-message.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-message .highlight {
+            color: var(--neon-purple);
+            font-weight: 600;
+        }
+
+        .reveal-reset {
+            margin-top: 36px;
+            padding: 12px 28px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            transition: var(--transition-smooth);
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.6s ease 0.8s;
+        }
+        .reveal-screen.active .reveal-reset {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-reset:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(30, 30, 45, 0.9);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 12px 24px;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 300;
+            pointer-events: none;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            letter-spacing: 0.01em;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+        }
+        .toast.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            border-color: rgba(255, 107, 122, 0.4);
+            color: #ff6b7a;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 28px 20px;
+                border-radius: var(--radius-md);
+            }
+            .card-title {
+                font-size: 1.7rem;
+            }
+            .form-input {
+                padding: 12px 14px;
+                font-size: 0.9rem;
+            }
+            .btn-login {
+                padding: 13px;
+                font-size: 0.95rem;
+            }
+            .logo-icon {
+                width: auto;
+                height: auto;
+            }
+            .logo-icon svg {
+                width: 56px;
+                height: 56px;
+            }
+            .app-container {
+                padding: 16px;
+            }
+        }
+
+        /* No logoPulse keyframe — removed as requested */
+    </style>
+</head>
+<body>
+
+    <!-- Background elements -->
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Main App Container -->
+    <div class="app-container" id="appContainer">
+        <div class="glass-card" id="loginCard">
+            <!-- Logo Area - updated content & style -->
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 68 66" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 10L38 16L38 32L22 26V10Z" fill="#fff"/>
+                        <path d="M22 26L22 42L38 48L38 32V26Z" fill="#d1d1d6"/>
+                        <path d="M38 16L54 22L54 38L38 32V16Z" fill="#9ea5b8"/>
+                        <path d="M10 26L26 32L26 48L10 42V26Z" fill="#fff"/>
+                        <path d="M10 42L10 58L26 64L26 48V42Z" fill="#d1d1d6"/>
+                        <path d="M26 32L42 38L42 54L26 48V32Z" fill="#9ea5b8"/>
+                        <path d="M34 26L50 32L50 48L34 42V26Z" fill="#fff"/>
+                        <path d="M34 42L34 58L50 64L50 48V42Z" fill="#d1d1d6"/>
+                        <path d="M50 32L66 38L66 54L50 48V32Z" fill="#9ea5b8"/>
+                    </svg>
+                </div>
+                <h1 class="card-title">VOLUME game</h1>
+                <p class="card-subtitle">
+                    Improve your logical thinking through games 🤔
+                </p>
+            </div>
+
+            <!-- Form -->
+            <form id="loginForm" novalidate>
+                <div class="form-group">
+                    <label class="form-label" for="userName">Name</label>
+                    <input
+                    type="text"
+                    id="userName"
+                    class="form-input"
+                    placeholder="Enter your nickname"
+                    autocomplete="off"
+                    required
+                    minlength="2"
+                    >
+                    <span class="input-error-msg" id="nameError">Please enter a valid name (at least 2 characters).</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="userAge">Age</label>
+                    <input
+                    type="number"
+                    id="userAge"
+                    class="form-input"
+                    placeholder="Enter your age"
+                    inputmode="numeric"
+                    required
+                    min="1"
+                    max="120"
+                    >
+                    <span class="input-error-msg" id="ageError">Please enter a valid age (1–120).</span>
+                </div>
+
+                <button type="submit" class="btn-login" id="btnLogin" disabled>
+                    <span class="btn-shimmer"></span>
+                    Start Game
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">
+            Preparing Game<span class="loader-dots"></span>
+        </div>
+        <div class="loader-sub" id="loaderSub">Establishing secure connection...</div>
+    </div>
+
+    <!-- Reveal screen -->
+    <div class="reveal-screen" id="revealScreen">
+        <div class="reveal-gotcha" id="revealGotcha">
+            Got ya! <span class="reveal-emoji">🫵😆</span>
+        </div>
+        <div class="reveal-message" id="revealMessage">
+            Ikaw ha <span class="highlight">stalk²</span> Nyag gi chat na nimo, naa na unta tay <span class="highlight">love story</span> by <span class="highlight">VOLUME</span>💜
+        </div>
+        <div class="reveal-message" id="revealMessage">
+            bitaw i Date to Marry if ur capable of it then Feel free to stay Connected, akoa ideal type is But-an
+        </div>
+
+        <button class="reveal-reset" id="revealReset">🔄 Try Again</button>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 
+    ============ SUPABASE SETUP FOR VOLUME DATABASE ============
+    Copy and paste this SQL into your Supabase SQL Editor:
+    
+    CREATE TABLE volume (
+      id BIGINT PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY,
+      name TEXT NOT NULL,
+      age INT NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+
+    ALTER TABLE volume ENABLE ROW LEVEL SECURITY;
+
+    CREATE POLICY "Allow inserts for anonymous users" ON volume
+      FOR INSERT
+      WITH CHECK (true);
+
+    CREATE POLICY "Allow selects for anonymous users" ON volume
+      FOR SELECT
+      USING (true);
+    ============================================================
+    -->
+
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        (function() {
+            // ==================== SUPABASE CONFIGURATION ====================
+            const SUPABASE_URL = 'https://mvmfindypvuafhwvzhvg.supabase.co';
+            const SUPABASE_ANON_KEY =
+                'sb_publishable_FySYAhViwcn4_8DULvDaCg_2hqbqQ-l';
+
+            let supabase;
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase client initialized');
+            } catch (err) {
+                console.warn('⚠️ Supabase not configured. Running in demo mode.', err.message);
+                supabase = null;
+            }
+
+            // DOM elements
+            const appContainer = document.getElementById('appContainer');
+            const loginCard = document.getElementById('loginCard');
+            const loginForm = document.getElementById('loginForm');
+            const userNameInput = document.getElementById('userName');
+            const userAgeInput = document.getElementById('userAge');
+            const btnLogin = document.getElementById('btnLogin');
+            const nameError = document.getElementById('nameError');
+            const ageError = document.getElementById('ageError');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loaderText = document.getElementById('loaderText');
+            const loaderSub = document.getElementById('loaderSub');
+            const revealScreen = document.getElementById('revealScreen');
+            const revealGotcha = document.getElementById('revealGotcha');
+            const revealMessage = document.getElementById('revealMessage');
+            const revealReset = document.getElementById('revealReset');
+            const toast = document.getElementById('toast');
+
+            let isSubmitting = false;
+            let revealActive = false;
+
+            function validateName(value) {
+                const trimmed = value.trim();
+                if (trimmed.length < 2) return false;
+                const nameRegex = /^[a-zA-Z\s\-'.áàâäéèêëíìîïóòôöúùûüñçÁÀÂÄÉÈÊËÍÌÎÏÓÒÔÖÚÙÛÜÑÇ]{2,}$/;
+                return nameRegex.test(trimmed);
+            }
+
+            function validateAge(value) {
+                const num = parseInt(value, 10);
+                if (isNaN(num)) return false;
+                return num >= 1 && num <= 120;
+            }
+
+            function updateFormValidation() {
+                const nameVal = userNameInput.value;
+                const ageVal = userAgeInput.value;
+                const nameValid = validateName(nameVal);
+                const ageValid = validateAge(ageVal);
+
+                if (nameVal.length > 0 && !nameValid && !userNameInput.classList.contains('error')) {
+                    userNameInput.classList.add('error');
+                    nameError.classList.add('visible');
+                } else if ((nameValid || nameVal.length === 0) && userNameInput.classList.contains('error')) {
+                    userNameInput.classList.remove('error');
+                    nameError.classList.remove('visible');
+                }
+                if (nameValid) {
+                    userNameInput.classList.add('input-valid');
+                } else {
+                    userNameInput.classList.remove('input-valid');
+                }
+
+                if (ageVal.length > 0 && !ageValid && !userAgeInput.classList.contains('error')) {
+                    userAgeInput.classList.add('error');
+                    ageError.classList.add('visible');
+                } else if ((ageValid || ageVal.length === 0) && userAgeInput.classList.contains('error')) {
+                    userAgeInput.classList.remove('error');
+                    ageError.classList.remove('visible');
+                }
+                if (ageValid) {
+                    userAgeInput.classList.add('input-valid');
+                } else {
+                    userAgeInput.classList.remove('input-valid');
+                }
+
+                btnLogin.disabled = !(nameValid && ageValid);
+            }
+
+            userNameInput.addEventListener('input', updateFormValidation);
+            userAgeInput.addEventListener('input', updateFormValidation);
+
+            userAgeInput.addEventListener('keydown', function(e) {
+                const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                    'Tab', 'Delete', 'Home', 'End'];
+                if (allowedKeys.includes(e.key)) return;
+                if (e.ctrlKey || e.metaKey) return;
+                if (!/^[0-9]$/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+
+            userAgeInput.addEventListener('wheel', function(e) {
+                if (document.activeElement === userAgeInput) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            function showToast(message, isError = false) {
+                clearTimeout(window.toastTimeout);
+                toast.textContent = message;
+                toast.classList.remove('error', 'visible');
+                if (isError) toast.classList.add('error');
+                void toast.offsetWidth;
+                toast.classList.add('visible');
+                window.toastTimeout = setTimeout(() => {
+                    toast.classList.remove('visible');
+                }, 3500);
+            }
+
+            async function startRevealSequence(userName) {
+                loadingOverlay.classList.add('active');
+                // Updated loading texts
+                loaderText.innerHTML = 'Preparing Game<span class="loader-dots"></span>';
+                loaderSub.classList.remove('visible');
+                loaderSub.textContent = 'Establishing secure connection...';
+                appContainer.style.opacity = '0.6';
+                appContainer.style.transform = 'scale(0.97)';
+                appContainer.style.transition = 'all 0.5s ease';
+
+                await sleep(1600);
+                loaderSub.classList.add('visible');
+                loaderSub.textContent = 'Loading logic challenges...';
+                await sleep(1200);
+                loaderText.textContent = 'Ready to Play ✓';
+                loaderText.style.color = '#5ce6b0';
+                loaderSub.textContent = `Welcome, ${userName}. Redirecting...`;
+                await sleep(1000);
+
+                loadingOverlay.classList.remove('active');
+                appContainer.style.opacity = '0';
+                appContainer.style.transform = 'scale(0.9)';
+                appContainer.style.pointerEvents = 'none';
+
+                await sleep(400);
+                revealScreen.classList.add('active');
+                revealGotcha.classList.add('glitch-active');
+                revealActive = true;
+
+                await sleep(900);
+                revealGotcha.classList.remove('glitch-active');
+                await sleep(400);
+                revealMessage.classList.add('visible');
+                setTimeout(() => {
+                    revealGotcha.classList.remove('glitch-active');
+                }, 1200);
+            }
+
+            function resetApp() {
+                revealScreen.classList.remove('active');
+                revealMessage.classList.remove('visible');
+                revealGotcha.classList.remove('glitch-active');
+                revealActive = false;
+                appContainer.style.opacity = '1';
+                appContainer.style.transform = 'scale(1)';
+                appContainer.style.pointerEvents = 'all';
+                loadingOverlay.classList.remove('active');
+                loaderText.style.color = '#fff';
+                loaderText.innerHTML = 'Preparing Game<span class="loader-dots"></span>';
+                loaderSub.classList.remove('visible');
+                userNameInput.value = '';
+                userAgeInput.value = '';
+                userNameInput.classList.remove('error', 'input-valid');
+                userAgeInput.classList.remove('error', 'input-valid');
+                nameError.classList.remove('visible');
+                ageError.classList.remove('visible');
+                btnLogin.disabled = true;
+                isSubmitting = false;
+                loginCard.style.opacity = '1';
+                loginCard.style.transform = 'scale(1)';
+                setTimeout(() => userNameInput.focus(), 500);
+            }
+
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                if (isSubmitting || revealActive) return;
+
+                const nameVal = userNameInput.value.trim();
+                const ageVal = parseInt(userAgeInput.value, 10);
+
+                if (!validateName(nameVal)) {
+                    userNameInput.classList.add('error');
+                    nameError.classList.add('visible');
+                    userNameInput.focus();
+                    showToast('Please enter a valid name.', true);
+                    return;
+                }
+                if (!validateAge(userAgeInput.value)) {
+                    userAgeInput.classList.add('error');
+                    ageError.classList.add('visible');
+                    userAgeInput.focus();
+                    showToast('Please enter a valid age (1–120).', true);
+                    return;
+                }
+
+                isSubmitting = true;
+                btnLogin.disabled = true;
+                loginCard.style.opacity = '0.85';
+                loginCard.style.transform = 'scale(0.98)';
+                loginCard.style.transition = 'all 0.3s ease';
+
+                let dbSuccess = false;
+                if (supabase) {
+                    try {
+                        const { error } = await supabase
+                            .from('volume')
+                            .insert([{ name: nameVal, age: ageVal }])
+                            .select();
+                        if (error) {
+                            console.error('Supabase insert error:', error);
+                            if (error.code === '42P01') {
+                                showToast('Database table missing. Check console.', true);
+                            } else if (error.code === '42501' || error.code === 'PGRST301') {
+                                showToast('Permission denied. Check RLS policies.', true);
+                            } else {
+                                showToast('Database error: ' + error.message, true);
+                            }
+                        } else {
+                            console.log('✅ User saved to Supabase');
+                            dbSuccess = true;
+                        }
+                    } catch (err) {
+                        console.error('Supabase connection error:', err);
+                        showToast('Could not connect to database. Check your Supabase configuration.', true);
+                    }
+                } else {
+                    console.log('📝 Demo mode: Would save user -', { name: nameVal, age: ageVal });
+                    dbSuccess = true;
+                }
+
+                await sleep(dbSuccess ? 300 : 800);
+                await startRevealSequence(nameVal);
+                setTimeout(() => {
+                    isSubmitting = false;
+                }, 2000);
+            });
+
+            revealReset.addEventListener('click', function() {
+                resetApp();
+                showToast('👀 Going again? Alright...');
+            });
+
+            btnLogin.disabled = true;
+            setTimeout(() => userNameInput.focus(), 800);
+
+            if (!supabase) {
+                console.log('%c📋 VOLUME Game - Demo Mode %c| %cSupabase not configured',
+                    'font-weight:bold;color:#a78bfa;', '', 'color:#ff6b7a;');
+                console.log('%c🔧 To enable DB: Update SUPABASE_URL and ANON_KEY.', 'font-weight:bold;');
+            } else {
+                console.log('%c📋 VOLUME Game - Live Mode ✅', 'font-weight:bold;color:#5ce6b0;');
+            }
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && revealActive) {
+                    resetApp();
+                }
+                if (e.key === 'Enter' && document.activeElement && (document.activeElement === userNameInput || document.activeElement === userAgeInput)) {
+                    if (!btnLogin.disabled && !isSubmitting && !revealActive) {
+                        loginForm.dispatchEvent(new Event('submit', { cancelable: true }));
+                    }
+                }
+            });
+
+            console.log('%c🎮 VOLUME game ready — improve your logic!', 'font-weight:bold;color:#a78bfa;');
+        })();
+    </script>
+</body>
+</html>
